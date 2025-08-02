@@ -34,13 +34,14 @@
 			password: password
 		});
 		if (!error) {
-			console.log('here reached');
 			const { data, error: loginError } = await supabase.auth.signInWithPassword({
 				email: email,
 				password: password
 			});
 			loginError ? (error = loginError.message) : goto('/home');
-			setTimeout((error = ''), 4000);
+			setTimeout(() => {
+				error = '';
+			}, 4000);
 		}
 	}
 </script>

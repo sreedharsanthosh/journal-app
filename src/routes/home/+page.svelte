@@ -9,6 +9,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import { inview } from 'svelte-inview';
+	import gsap from 'gsap';
 
 	let isInViewMap = $state({});
 	let journalList: any[] = $state([]);
@@ -73,7 +74,7 @@
 {#if loading}
 	<h1>Loading</h1>
 {:else}
-	<div class="bg-secondary min-h-screen p-2 lg:p-10 font-poppins">
+	<div class="bg-secondary min-h-screen p-2 lg:p-10 font-poppins relative">
 		<h1 class="text-5xl font-bold my-4 heading" transition:fade={{ duration: 500 }}>
 			Hey {user.username},
 		</h1>
@@ -81,8 +82,13 @@
 			Welcome back to your humble abode
 		</h1>
 		<h1 class="text-primary underline text-xl font-light my-2" transition:fade={{ duration: 500 }}>
-			Your commitment
+			<a href="/profile"> Your commitment </a>
 		</h1>
+		<div class="inline-block">
+			<h1 class="text-2xl bg-amber-400 mt-4 text-center font-bold text-black rounded-md px-4 py-2">
+				{user.streak} 🔥
+			</h1>
+		</div>
 		<a
 			href="/create"
 			class="fixed right-1/2 translate-x-1/2 md:translate-x-0 bottom-10 shadow-box md:right-8 bg-primary py-4 px-6 rounded-md font-bold font-poppins z-10 hover:scale-[1.05] transition ease-in duration-100"
@@ -97,7 +103,7 @@
 						isInViewMap[journal.id] = true;
 					}}
 					oninview_leave={(event) => (isInViewMap[journal.id] = false)}
-					class={`relative w-10/12 mx-0 lg:w-3/12 xl:w-[20%] md:w-5/12 md:mx-20 rounded-lg bg-primary px-6 py-6 h-[350px] my-5 ${isInViewMap[journal.id] ? 'visible' : ''} transition duration-200 delay-100 opacity-0 scale-75`}
+					class={`journal-card w-10/12 mx-0 lg:w-3/12 xl:w-[20%] md:w-5/12 md:mx-20 rounded-lg bg-primary px-6 py-6 h-[350px] my-5 ${isInViewMap[journal.id] ? 'visible' : ''} transition duration-180 delay-100 opacity-0 scale-75 `}
 				>
 					<img
 						src={moodImg[journal.mood.mood]}
@@ -134,5 +140,10 @@
 	.visible {
 		opacity: 1;
 		scale: 1;
+	}
+
+	.journal-card:hover {
+		background: red;
+		transition: 1s ease;
 	}
 </style>

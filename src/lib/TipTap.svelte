@@ -9,7 +9,9 @@
 	let editor: any;
 	let content = '';
 	let title = '';
-	let selectedMood = {};
+	let selectedMood: any = null;
+	let user;
+	let error;
 
 	let moods = [
 		{ emoji: '🙂', mood: 'happy', hover: 'rotate-360' },
@@ -46,15 +48,57 @@
 			editor.destroy();
 		}
 	});
+
+	async function getUser() {
+		const data = await supabase.auth.getUser();
+		const { data: userData, error: userError } = await supabase
+			.from('profiles')
+			.select('*')
+			.eq('USER', data.data.user?.id);
+		user = userData ? userData[0] : null;
+		return { user: user, last_active: user.last_active, longest_streak: user.longest_streak };
+	}
+
 	const postJournal = async () => {
-		let user = await supabase.auth.getUser();
-		let id = user.data.user?.id;
+		let date = new Date();
+		date.setDate(date.getDate() - 1);
+		const yesterday = date.toISOString().split('T')[0];
+		date = new Date();
+		date.setDate(date.getDate());
+		const today = date.toISOString().split('T')[0];
+		let user = await getUser();
+		let id = user.user.USER;
+		if (!title || !content || !selectedMood) {
+			alert('Please fill in all the fields');
+			return;
+		}
+
+		if (user.last_active == yesterday) {
+			const { data, error } = await supabase
+				.from('profiles')
+				.update({ last_active: today, streak: user.user.streak + 1 })
+				.eq('USER', id);
+			console.log(error, data);
+		}
 		const { data, error } = await supabase
 			.from('journals')
 			.insert([{ title: title, journal: content, user: id, mood: selectedMood }]);
 		if (error) {
 			alert(error.message);
 		} else {
+			if (user.last_active == yesterday) {
+				await supabase
+					.from('profiles')
+					.update({ streak: user.user.streak + 1 })
+					.eq('USER', id);
+				user.user.streak > user.longest_streak
+					? await supabase
+							.from('profiles')
+							.update({ longest_streak: user.user.streak + 1 })
+							.eq('USER', id)
+					: null;
+			}
+			await supabase.from('profiles').update({ last_active: today }).eq('USER', id);
 			goto('/home');
 		}
 	};
