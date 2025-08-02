@@ -52,9 +52,7 @@
 				});
 				profileError ? (error = profileError.message) : goto('/login');
 			}
-			setTimeout(() => {
-				error = '';
-			}, 4000);
+			setTimeout((error = ''), 4000);
 		}
 	}
 </script>
