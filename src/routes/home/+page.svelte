@@ -81,7 +81,7 @@
 			Welcome back to your humble abode
 		</h1>
 		<h1 class="text-primary underline text-xl font-light my-2" transition:fade={{ duration: 500 }}>
-			Your commitment
+			<a href="/"> Your commitment </a>
 		</h1>
 		<a
 			href="/create"

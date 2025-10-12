@@ -1,6 +1,7 @@
 import { supabase } from '$lib/supabaseClient';
 import type { PageLoad } from './$types';
 import { goto } from '$app/navigation';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageLoad = async ({ params }) => {
 	let data;
@@ -8,12 +9,12 @@ export const load: PageLoad = async ({ params }) => {
 		data = await supabase.auth.getUser();
 		console.log(data);
 		if (!data.data.user) {
-			goto('/login');
-			return 0;
+			throw redirect(303, '/login');
 		}
 	} catch (err) {
 		console.log(err);
 	}
+
 	const loading = false;
 	let { data: journals, error } = await supabase
 		.from('journals')
