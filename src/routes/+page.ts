@@ -9,8 +9,10 @@ export const load: PageLoad = async ({ params }) => {
 		data = await supabase.auth.getUser();
 		console.log(data);
 		if (!data.data.user) {
+			goto('/login');
 			throw redirect(303, '/login');
 		}
+		goto('/home');
 	} catch (err) {
 		console.log(err);
 	}

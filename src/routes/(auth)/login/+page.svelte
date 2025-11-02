@@ -39,8 +39,14 @@
 				email: email,
 				password: password
 			});
+			if (loginError) {
+				console.log(loginError.message);
+				error = loginError.message;
+			}
 			loginError ? (error = loginError.message) : goto('/home');
-			setTimeout((error = ''), 4000);
+			setTimeout(() => {
+				error = '';
+			}, 4000);
 		}
 	}
 </script>
@@ -96,7 +102,8 @@
 			</div>
 		</div>
 	</form>
-	{#if error}
-		<Alert message={error} />
-	{/if}
 </div>
+{#if error}
+	<h1>blah</h1>
+	<Alert message={error} />
+{/if}

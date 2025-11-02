@@ -2,7 +2,6 @@
 	// @ts-nocheck
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabaseClient';
-	let loading = $state(true);
 	import bluenoise from '../../assets/noise.png';
 	import greennoise from '../../assets/greennoise.png';
 	import rednoise from '../../assets/rednoise.png';
@@ -10,6 +9,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { inview } from 'svelte-inview';
 
+	let loading = $state(true);
 	let isInViewMap = $state({});
 	let journalList: any[] = $state([]);
 	let user = $state();
@@ -81,7 +81,7 @@
 			Welcome back to your humble abode
 		</h1>
 		<h1 class="text-primary underline text-xl font-light my-2" transition:fade={{ duration: 500 }}>
-			<a href="/"> Your commitment </a>
+			<a href="/profile"> Your commitment </a>
 		</h1>
 		<a
 			href="/create"
