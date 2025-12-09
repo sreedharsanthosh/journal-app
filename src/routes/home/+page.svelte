@@ -116,12 +116,6 @@
 				</div>
 			{/each}
 		</div>
-		<button
-			onclick={async () => {
-				await supabase.auth.signOut();
-				goto('/login');
-			}}>Sign out</button
-		>
 	</div>
 {/if}
 

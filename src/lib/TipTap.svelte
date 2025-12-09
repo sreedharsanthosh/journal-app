@@ -10,6 +10,8 @@
 	let content = '';
 	let title = '';
 	let selectedMood = {};
+	let userId = null;
+	let userData = null;
 
 	let moods = [
 		{ emoji: '🙂', mood: 'happy', hover: 'rotate-360' },
@@ -20,6 +22,19 @@
 	];
 
 	onMount(() => {
+		// get user to update streak
+		async function getUser() {
+			const data = await supabase.auth.getUser();
+			userId = data.data.user?.id;
+			const { data: profileData } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('USER', data.data.user?.id);
+			userData = profileData ? profileData[0] : null;
+		}
+
+		getUser();
+
 		editor = new Editor({
 			onUpdate({ editor }) {
 				const html = editor.getHTML();
@@ -46,6 +61,32 @@
 			editor.destroy();
 		}
 	});
+
+	export function updateStreak(lastActive: string, currentStreak: number): number {
+		// Convert "2025-08-02" → Date
+		const last = new Date(lastActive);
+		const today = new Date();
+
+		// Normalize both to midnight to avoid timezone drift
+		last.setHours(0, 0, 0, 0);
+		today.setHours(0, 0, 0, 0);
+
+		// Calculate difference in days
+		const diffMs = today.getTime() - last.getTime();
+		const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+		if (diffDays === 1) {
+			// Next day → continue streak
+			return currentStreak + 1;
+		} else if (diffDays === 0) {
+			// Same day → do nothing
+			return currentStreak;
+		} else {
+			// Missed a day → reset streak
+			return 1;
+		}
+	}
+
 	const postJournal = async () => {
 		let user = await supabase.auth.getUser();
 		let id = user.data.user?.id;
@@ -54,7 +95,22 @@
 			.insert([{ title: title, journal: content, user: id, mood: selectedMood }]);
 		if (error) {
 			alert(error.message);
-		} else {
+		}
+		if (!error) {
+			// update streak last_active and longest_streak if needed
+			const newStreak = updateStreak(userData.last_active, userData.streak);
+			let longest_streak = userData.longest_streak;
+			if (newStreak > longest_streak) {
+				longest_streak = newStreak;
+			}
+			const { data: profileData, error: profileError } = await supabase
+				.from('profiles')
+				.update({
+					streak: newStreak,
+					last_active: new Date().toISOString().split('T')[0],
+					longest_streak
+				})
+				.eq('USER', id);
 			goto('/home');
 		}
 	};
